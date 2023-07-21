@@ -13,6 +13,7 @@ const {
   commonAfterAll,
   u1Token,
 } = require("./_testCommon");
+const { UnauthorizedError } = require("../expressError.js");
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -160,6 +161,14 @@ describe("GET /users", function () {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(500);
   });
+
+  test("unauth for non admin nor current user", async function() {
+    const resp = await request(app)
+      .get("/users")
+      .set("authorization", `Bearer ${null}`);
+    expect(resp.statusCode).toEqual(401);
+    expect(resp.body).toEqual({ error: { message: 'Unauthorized', status: 401 } })
+  })
 });
 
 /************************************** GET /users/:username */
