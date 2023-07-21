@@ -96,6 +96,27 @@ describe("GET /companies", function () {
     });
   });
 
+  test("works: filtering", async function() {
+    // should return all companies when the name of the company contains the filter and should be case insensitive
+    const resp = await request(app).get(`/companies/?name=c1`);
+    expect(resp.body).toEqual({
+      companies :
+        [{
+          handle: "c1",
+          name: "C1",
+          description: "Desc1",
+          numEmployees: 1,
+          logoUrl: "http://c1.img",
+        }]
+    })
+  })
+
+  test("bad Request for min max employee range issue", async function() {
+    // should throw a bad request error when trying to filter with minEmployees greater than maxEmployees
+    const resp = await request(app).get(`/companies/?minEmployees=100&maxEmployees=20`);
+    expect(resp.statusCode).toEqual(400)
+  })
+
   test("fails: test next() handler", async function () {
     // there's no normal failure event which will cause this route to fail ---
     // thus making it hard to test that the error-handler works with it. This
@@ -107,6 +128,7 @@ describe("GET /companies", function () {
     expect(resp.statusCode).toEqual(500);
   });
 });
+
 
 /************************************** GET /companies/:handle */
 
