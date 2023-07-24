@@ -11,6 +11,8 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
+  u2Token,
+  testObjects,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -76,21 +78,21 @@ describe("GET /companies", function () {
               name: "C1",
               description: "Desc1",
               numEmployees: 1,
-              logoUrl: "http://c1.img",
+              logoUrl: "http://c1.img"
             },
             {
               handle: "c2",
               name: "C2",
               description: "Desc2",
               numEmployees: 2,
-              logoUrl: "http://c2.img",
+              logoUrl: "http://c2.img"
             },
             {
               handle: "c3",
               name: "C3",
               description: "Desc3",
               numEmployees: 3,
-              logoUrl: "http://c3.img",
+              logoUrl: "http://c3.img"
             },
           ],
     });
@@ -106,7 +108,7 @@ describe("GET /companies", function () {
           name: "C1",
           description: "Desc1",
           numEmployees: 1,
-          logoUrl: "http://c1.img",
+          logoUrl: "http://c1.img"
         }]
     })
   })
@@ -142,6 +144,20 @@ describe("GET /companies/:handle", function () {
         description: "Desc1",
         numEmployees: 1,
         logoUrl: "http://c1.img",
+        jobs: [{
+          id: testObjects['t1'],
+          title: "testtitle1",
+          salary: 10000,
+          equity: '0.4',
+          companyHandle: "c1"
+        },
+        {
+          id: expect.any(Number),
+          title: "testtitle4",
+          salary: 15000,
+          equity: '0.6',
+          companyHandle: "c1"
+        }]
       },
     });
   });
@@ -155,6 +171,7 @@ describe("GET /companies/:handle", function () {
         description: "Desc2",
         numEmployees: 2,
         logoUrl: "http://c2.img",
+        jobs: []
       },
     });
   });
@@ -168,7 +185,7 @@ describe("GET /companies/:handle", function () {
 /************************************** PATCH /companies/:handle */
 
 describe("PATCH /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for admin", async function () {
     const resp = await request(app)
         .patch(`/companies/c1`)
         .send({
@@ -181,9 +198,19 @@ describe("PATCH /companies/:handle", function () {
         name: "C1-new",
         description: "Desc1",
         numEmployees: 1,
-        logoUrl: "http://c1.img",
+        logoUrl: "http://c1.img"
       },
     });
+  });
+
+  test("unauth for non admin", async function () {
+    const resp = await request(app)
+        .patch(`/companies/c1`)
+        .send({
+          name: "C1-new",
+        })
+        .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {

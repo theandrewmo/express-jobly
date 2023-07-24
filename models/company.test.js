@@ -8,6 +8,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  testObjects
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -98,6 +99,14 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [ 
+        {
+          id: testObjects['job1'],
+          title: "testtitle1",
+          salary: 10000,
+          equity: '0.4',
+          companyHandle: "c1"
+        }]
     });
   });
 
@@ -106,6 +115,7 @@ describe("get", function () {
       await Company.get("nope");
       fail();
     } catch (err) {
+      console.log(err)
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
