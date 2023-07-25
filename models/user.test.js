@@ -12,6 +12,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  testObjects
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -133,6 +134,7 @@ describe("findAll", function () {
 
 describe("get", function () {
   test("works", async function () {
+    expect.assertions(1);
     let user = await User.get("u1");
     expect(user).toEqual({
       username: "u1",
@@ -140,10 +142,12 @@ describe("get", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
+      jobs: []
     });
   });
 
   test("not found if no such user", async function () {
+    expect.assertions(1);
     try {
       await User.get("nope");
       fail();
@@ -164,6 +168,7 @@ describe("update", function () {
   };
 
   test("works", async function () {
+    expect.assertions(1);
     let job = await User.update("u1", updateData);
     expect(job).toEqual({
       username: "u1",
@@ -172,6 +177,7 @@ describe("update", function () {
   });
 
   test("works: set password", async function () {
+    expect.assertions(3);
     let job = await User.update("u1", {
       password: "new",
     });
@@ -188,6 +194,7 @@ describe("update", function () {
   });
 
   test("not found if no such user", async function () {
+    expect.assertions(1);
     try {
       await User.update("nope", {
         firstName: "test",
@@ -202,6 +209,52 @@ describe("update", function () {
     expect.assertions(1);
     try {
       await User.update("c1", {});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
+
+
+/************************************** apply */
+
+describe("apply", function () {
+ 
+  test("works", async function () {
+    expect.assertions(1);
+    const application = await User.apply("u1", testObjects['job1']);
+    expect(application).toEqual({
+      username: "u1",
+      job_id: testObjects['job1']
+    });
+  });
+
+  test("bad request if no such user", async function () {
+    expect.assertions(1);
+    try {
+      await User.apply("nope", testObjects['job1']);
+      fail();
+    } catch (err) {
+      console.log(err.code)
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("bad request if no such job", async function () {
+    expect.assertions(1);
+    try {
+      await User.apply("c1", -1);
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
+  test("bad request if no data", async function () {
+    expect.assertions(1);
+    try {
+      await User.apply("c1", {});
       fail();
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();
